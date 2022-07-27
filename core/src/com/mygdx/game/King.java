@@ -14,6 +14,22 @@ public class King implements ChessPiece {
     }
 
     @Override
+    public String convertColor() {
+        if(this.color == COLOR.BlACK) {
+            return "Black";
+        }
+        else if(this.color == COLOR.WHITE) {
+            return "White";
+        }
+        return "Null";
+    }
+
+    @Override
+    public String getName() {
+        return "King";
+    }
+
+    @Override
     public COLOR getColor() {
         return color;
     }

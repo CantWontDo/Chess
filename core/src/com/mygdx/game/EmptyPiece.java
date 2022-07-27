@@ -8,9 +8,25 @@ public class EmptyPiece implements ChessPiece {
             return false;
         }
 
+    @Override
+    public String convertColor() {
+        if(this.color == COLOR.BlACK) {
+            return "Black";
+        }
+        else if(this.color == COLOR.WHITE) {
+            return "White";
+        }
+        return "Null";
+    }
+
+    @Override
+    public String getName() {
+        return "Null";
+    }
+
         @Override
         public COLOR getColor() {
-            return color;
+            return COLOR.NEUTRAL;
         }
 }
 

@@ -11,6 +11,10 @@ public interface ChessPiece {
 
     boolean isValidMove(int changeX, int changeY);
 
+    String convertColor();
+
+    String getName();
+
     COLOR getColor();
 }
 

@@ -1,6 +1,7 @@
 package com.mygdx.game;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -32,18 +33,10 @@ public class Space {
         return isEmpty;
     }
 
-    public Color convertColor(ChessPiece.COLOR color) {
-        if(color == ChessPiece.COLOR.BlACK) {
-            return Color.DARK_GRAY;
-        }
-        else if (color == ChessPiece.COLOR.WHITE) {
-            return Color.SLATE;
-        }
-        return null;
-    }
-
-    public void draw(SpriteBatch spriteBatch, int size, Sprite sprite) {
-        spriteBatch.draw(sprite, x * 100, y * 100, size, size);
+    public void draw(SpriteBatch spriteBatch, int pos, int width, int height, Texture img) {
+        spriteBatch.begin();
+        spriteBatch.draw(img, x * pos, y * pos, width, height);
+        spriteBatch.end();
     }
 
 }
