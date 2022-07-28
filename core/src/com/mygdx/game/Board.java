@@ -36,6 +36,7 @@ public class Board {
     }
 
     public void makeMove(Space from, Space to) {
+        lookDiagonally();
         int changeX = to.x - from.x;
         int changeY = to.y - from.y;
         if(from.getPiece() instanceof EmptyPiece) {
@@ -69,6 +70,9 @@ public class Board {
         // gets beginning position
         int x = from.x;
         int y = from.y;
+
+        int changeX = to.x - from.x;
+        int changeY = to.y - from.y;
         if(!(from.getPiece() instanceof Knight)) {
             // if not knight, iterates towards destination
             while (x != to.x || y != to.y) {
@@ -90,7 +94,7 @@ public class Board {
                             return false;
                         }
                         else {
-                            if(from.getPiece() instanceof Pawn) {
+                            if(from.getPiece() instanceof Pawn && changeX == 0) {
                                 printError("Can't kill with pawn (forward).");
                                 return false;
                             }
@@ -139,5 +143,50 @@ public class Board {
 
     public Space getSpace(int x, int y) {
         return chessBoard[x][y];
+    }
+
+    private void lookDiagonally() {
+        for(int i = 0; i < 8; i++) {
+            for(int j = 0; j < 8; j++) {
+                if(chessBoard[i][j].getPiece() instanceof Pawn) {
+                    if(chessBoard[i][j].getPiece().getColor() == ChessPiece.COLOR.WHITE) {
+                        if(i - 1 >= 0 && j + 1 <= 7) {
+                            if(!(chessBoard[i - 1][j + 1].getPiece() instanceof EmptyPiece) && chessBoard[i - 1][j + 1].getPiece().getColor() == ChessPiece.COLOR.BlACK) {
+                                ((Pawn) chessBoard[i][j].getPiece()).setCanAttack(true);
+                            }
+                            else {
+                                ((Pawn) chessBoard[i][j].getPiece()).setCanAttack(false);
+                            }
+                        }
+                        else if(i + 1 <= 7 && j + 1 <= 7) {
+                            if(!(chessBoard[i + 1][j + 1].getPiece() instanceof EmptyPiece) && chessBoard[i + 1][j + 1].getPiece().getColor() == ChessPiece.COLOR.BlACK) {
+                                ((Pawn) chessBoard[i][j].getPiece()).setCanAttack(true);
+                            }
+                            else {
+                                ((Pawn) chessBoard[i][j].getPiece()).setCanAttack(false);
+                            }
+                        }
+                    }
+                    else {
+                        if(i - 1 >= 0 && j - 1 >= 0) {
+                            if(!(chessBoard[i - 1][j - 1].getPiece() instanceof EmptyPiece) && chessBoard[i - 1][j - 1].getPiece().getColor() == ChessPiece.COLOR.WHITE) {
+                                ((Pawn) chessBoard[i][j].getPiece()).setCanAttack(true);
+                            }
+                            else {
+                                ((Pawn) chessBoard[i][j].getPiece()).setCanAttack(false);
+                            }
+                        }
+                        else if(i + 1 <= 7 && j - 1 >= 0) {
+                            if(!(chessBoard[i + 1][j - 1].getPiece() instanceof EmptyPiece) && chessBoard[i + 1][j - 1].getPiece().getColor() == ChessPiece.COLOR.WHITE) {
+                                ((Pawn) chessBoard[i][j].getPiece()).setCanAttack(true);
+                            }
+                            else {
+                                ((Pawn) chessBoard[i][j].getPiece()).setCanAttack(false);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }

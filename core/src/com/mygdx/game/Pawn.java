@@ -3,6 +3,7 @@ package com.mygdx.game;
 public class Pawn implements ChessPiece{
     COLOR color = COLOR.BlACK;
     boolean hasMoved = false;
+    boolean canAttack = false;
 
     public Pawn(COLOR color) {
         this.color = color;
@@ -18,7 +19,27 @@ public class Pawn implements ChessPiece{
         if(color == COLOR.WHITE) {
             change = 1;
         }
-        return changeX == 0 && changeY == value * change;
+        if(canAttack) {
+            if(color == COLOR.WHITE) {
+                return Math.abs(changeX) == 1 && changeY <= value * change && changeY >= 0;
+            }
+            else if(color == COLOR.BlACK){
+                System.out.println(changeY);
+                System.out.println(changeX);
+                System.out.println(Math.abs(changeX));
+                return Math.abs(changeX) == 1 && changeY >= value * change && changeY <= 0;
+            }
+        }
+        else {
+            if(color == COLOR.WHITE) {
+                return changeX == 0 && changeY <= value * change && changeY >= 0;
+            }
+            else if(color == COLOR.BlACK){
+                System.out.println(changeY);
+                return changeX == 0 && changeY >= value * change && changeY <= 0;
+            }
+        }
+        return true;
     }
 
     @Override
@@ -46,5 +67,9 @@ public class Pawn implements ChessPiece{
         if(hasMoved != true) {
             hasMoved = true;
         }
+    }
+
+    public void setCanAttack(boolean x) {
+        canAttack = x;
     }
 }
