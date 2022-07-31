@@ -11,32 +11,31 @@ public class Board {
             }
         }
         chessBoard[0][0] = new Space(0, 0, new Castle(ChessPiece.COLOR.WHITE));
-        chessBoard[1][0] = new Space(1, 0, new Knight(ChessPiece.COLOR.WHITE));
-        chessBoard[2][0] = new Space(2, 0, new Bishop(ChessPiece.COLOR.WHITE));
-        chessBoard[3][0] = new Space(3, 0, new Queen(ChessPiece.COLOR.WHITE));
-        chessBoard[4][0] = new Space(4, 0, new King(ChessPiece.COLOR.WHITE));
-        chessBoard[5][0] = new Space(5, 0, new Bishop(ChessPiece.COLOR.WHITE));
-        chessBoard[6][0] = new Space(6, 0, new Knight(ChessPiece.COLOR.WHITE));
-        chessBoard[7][0] = new Space(7, 0, new Castle(ChessPiece.COLOR.WHITE));
+        chessBoard[1][0] = new Space(0, 1, new Knight(ChessPiece.COLOR.WHITE));
+        chessBoard[2][0] = new Space(0, 2, new Bishop(ChessPiece.COLOR.WHITE));
+        chessBoard[3][0] = new Space(0, 3, new Queen(ChessPiece.COLOR.WHITE));
+        chessBoard[4][0] = new Space(0, 4, new King(ChessPiece.COLOR.WHITE));
+        chessBoard[5][0] = new Space(0, 5, new Bishop(ChessPiece.COLOR.WHITE));
+        chessBoard[6][0] = new Space(0, 6, new Knight(ChessPiece.COLOR.WHITE));
+        chessBoard[7][0] = new Space(0, 7, new Castle(ChessPiece.COLOR.WHITE));
         for(int i = 0; i < 8; i++) {
-            chessBoard[i][1] = new Space(i, 1, new Pawn(ChessPiece.COLOR.WHITE));
+            chessBoard[i][1] = new Space(1, i, new Pawn(ChessPiece.COLOR.WHITE));
         }
 
-        chessBoard[0][7] = new Space(0, 7, new Castle(ChessPiece.COLOR.BlACK));
-        chessBoard[1][7] = new Space(1, 7, new Knight(ChessPiece.COLOR.BlACK));
-        chessBoard[2][7] = new Space(2, 7, new Bishop(ChessPiece.COLOR.BlACK));
-        chessBoard[3][7] = new Space(3, 7, new Queen(ChessPiece.COLOR.BlACK));
-        chessBoard[4][7] = new Space(4, 7, new King(ChessPiece.COLOR.BlACK));
-        chessBoard[5][7] = new Space(5, 7, new Bishop(ChessPiece.COLOR.BlACK));
-        chessBoard[6][7] = new Space(6, 7, new Knight(ChessPiece.COLOR.BlACK));
+        chessBoard[0][7] = new Space(7, 0, new Castle(ChessPiece.COLOR.BlACK));
+        chessBoard[1][7] = new Space(7, 1, new Knight(ChessPiece.COLOR.BlACK));
+        chessBoard[2][7] = new Space(7, 2, new Bishop(ChessPiece.COLOR.BlACK));
+        chessBoard[3][7] = new Space(7, 3, new King(ChessPiece.COLOR.BlACK));
+        chessBoard[4][7] = new Space(7, 4, new Queen(ChessPiece.COLOR.BlACK));
+        chessBoard[5][7] = new Space(7, 5, new Bishop(ChessPiece.COLOR.BlACK));
+        chessBoard[6][7] = new Space(7, 6, new Knight(ChessPiece.COLOR.BlACK));
         chessBoard[7][7] = new Space(7, 7, new Castle(ChessPiece.COLOR.BlACK));
         for(int i = 0; i < 8; i++) {
-            chessBoard[i][6] = new Space(i, 6, new Pawn(ChessPiece.COLOR.BlACK));
+            chessBoard[i][6] = new Space(6, i, new Pawn(ChessPiece.COLOR.BlACK));
         }
     }
 
     public void makeMove(Space from, Space to) {
-        lookDiagonally();
         int changeX = to.x - from.x;
         int changeY = to.y - from.y;
         if(from.getPiece() instanceof EmptyPiece) {
@@ -47,7 +46,8 @@ public class Board {
         }
         else {
             if(isCorrectTurn(from)) {
-                if (from.getPiece().isValidMove(changeX, changeY)) {
+                lookDiagonally();
+                if (from.getPiece().isValidMove(changeY, changeX)) {
                     if (isPathClear(from, to)) {
                         to.setPiece(from.getPiece());
                         from.setPiece(new EmptyPiece());
@@ -56,7 +56,8 @@ public class Board {
                         }
                         switchTurn();
                     }
-                } else {
+                }
+                else {
                     printError("Not valid move");
                 }
             }
@@ -68,8 +69,8 @@ public class Board {
 
     public boolean isPathClear(Space from, Space to) {
         // gets beginning position
-        int x = from.x;
-        int y = from.y;
+        int x = from.y;
+        int y = from.x;
 
         int changeX = to.x - from.x;
         int changeY = to.y - from.y;
@@ -115,14 +116,10 @@ public class Board {
 
     private boolean isCorrectTurn(Space space) {
         if(space.getPiece().getColor() == ChessPiece.COLOR.BlACK) {
-            if(turn > 0) {
-                return false;
-            }
+            return turn <= 0;
         }
         else if(space.getPiece().getColor() == ChessPiece.COLOR.WHITE) {
-            if(turn < 0) {
-                return false;
-            }
+            return turn >= 0;
         }
         return true;
     }
@@ -148,41 +145,26 @@ public class Board {
     private void lookDiagonally() {
         for(int i = 0; i < 8; i++) {
             for(int j = 0; j < 8; j++) {
-                if(chessBoard[i][j].getPiece() instanceof Pawn) {
-                    if(chessBoard[i][j].getPiece().getColor() == ChessPiece.COLOR.WHITE) {
-                        if(i - 1 >= 0 && j + 1 <= 7) {
-                            if(!(chessBoard[i - 1][j + 1].getPiece() instanceof EmptyPiece) && chessBoard[i - 1][j + 1].getPiece().getColor() == ChessPiece.COLOR.BlACK) {
-                                ((Pawn) chessBoard[i][j].getPiece()).setCanAttack(true);
-                            }
-                            else {
-                                ((Pawn) chessBoard[i][j].getPiece()).setCanAttack(false);
-                            }
-                        }
-                        else if(i + 1 <= 7 && j + 1 <= 7) {
-                            if(!(chessBoard[i + 1][j + 1].getPiece() instanceof EmptyPiece) && chessBoard[i + 1][j + 1].getPiece().getColor() == ChessPiece.COLOR.BlACK) {
-                                ((Pawn) chessBoard[i][j].getPiece()).setCanAttack(true);
-                            }
-                            else {
-                                ((Pawn) chessBoard[i][j].getPiece()).setCanAttack(false);
-                            }
-                        }
+                // finds pawn
+                if (chessBoard[i][j].getPiece() instanceof Pawn) {
+                    // gets a reference to the piece, casted to pawn so that it can use pawn only methods
+                    Pawn pawn = (Pawn) chessBoard[i][j].getPiece();
+                    // if black, the increments will be the opposite of white
+                    int value = -1;
+                    if(pawn.getColor() == ChessPiece.COLOR.WHITE) {
+                        value = 1;
                     }
-                    else {
-                        if(i - 1 >= 0 && j - 1 >= 0) {
-                            if(!(chessBoard[i - 1][j - 1].getPiece() instanceof EmptyPiece) && chessBoard[i - 1][j - 1].getPiece().getColor() == ChessPiece.COLOR.WHITE) {
-                                ((Pawn) chessBoard[i][j].getPiece()).setCanAttack(true);
-                            }
-                            else {
-                                ((Pawn) chessBoard[i][j].getPiece()).setCanAttack(false);
-                            }
+                    // if i and j are not out of bounds when added and subtracted from, keeps going
+                    if(j - value > -1 && j - value < 8 && j + value < 8 && j + value > -1 && i - value > -1 && i - value < 8 && i + value < 8 && i + value > -1) {
+                        // if the space to the right upwards diagonal is the opposite color or the left upwards diagonal is the opposite color, the pawn can attack.
+                        // second condition is weird
+                        if ((chessBoard[i + value][j + value].getPiece().getColor() != pawn.getColor() && chessBoard[i + value][j + value].getPiece().getColor() != ChessPiece.COLOR.NEUTRAL) ||
+                                chessBoard[i - value][j + value].getPiece().getColor() != pawn.getColor() && chessBoard[i - value][j + value].getPiece().getColor() != ChessPiece.COLOR.NEUTRAL) {
+                            pawn.setCanAttack(true);
                         }
-                        else if(i + 1 <= 7 && j - 1 >= 0) {
-                            if(!(chessBoard[i + 1][j - 1].getPiece() instanceof EmptyPiece) && chessBoard[i + 1][j - 1].getPiece().getColor() == ChessPiece.COLOR.WHITE) {
-                                ((Pawn) chessBoard[i][j].getPiece()).setCanAttack(true);
-                            }
-                            else {
-                                ((Pawn) chessBoard[i][j].getPiece()).setCanAttack(false);
-                            }
+                        // in other situations, it cannot
+                        else {
+                            pawn.setCanAttack(false);
                         }
                     }
                 }

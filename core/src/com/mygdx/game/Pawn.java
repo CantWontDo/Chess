@@ -21,13 +21,10 @@ public class Pawn implements ChessPiece{
         }
         if(canAttack) {
             if(color == COLOR.WHITE) {
-                return Math.abs(changeX) == 1 && changeY <= value * change && changeY >= 0;
+                return (changeX == -1 || changeX == 1) && changeY == 1;
             }
             else if(color == COLOR.BlACK){
-                System.out.println(changeY);
-                System.out.println(changeX);
-                System.out.println(Math.abs(changeX));
-                return Math.abs(changeX) == 1 && changeY >= value * change && changeY <= 0;
+                return (changeX == 1 || changeX == -1) && changeY == -1;
             }
         }
         else {
@@ -71,5 +68,9 @@ public class Pawn implements ChessPiece{
 
     public void setCanAttack(boolean x) {
         canAttack = x;
+    }
+
+    public boolean getCanAttack() {
+        return canAttack;
     }
 }
