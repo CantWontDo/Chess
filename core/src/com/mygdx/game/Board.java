@@ -11,27 +11,26 @@ public class Board {
             }
         }
         chessBoard[0][0] = new Space(0, 0, new Castle(ChessPiece.COLOR.WHITE));
-        chessBoard[1][0] = new Space(0, 1, new Knight(ChessPiece.COLOR.WHITE));
-        chessBoard[2][0] = new Space(0, 2, new Bishop(ChessPiece.COLOR.WHITE));
-        chessBoard[3][0] = new Space(0, 3, new Queen(ChessPiece.COLOR.WHITE));
-        chessBoard[4][0] = new Space(0, 4, new King(ChessPiece.COLOR.WHITE));
-        chessBoard[5][0] = new Space(0, 5, new Bishop(ChessPiece.COLOR.WHITE));
-        chessBoard[6][0] = new Space(0, 6, new Knight(ChessPiece.COLOR.WHITE));
-        chessBoard[7][0] = new Space(0, 7, new Castle(ChessPiece.COLOR.WHITE));
+        chessBoard[1][0] = new Space(1, 0, new Knight(ChessPiece.COLOR.WHITE));
+        chessBoard[2][0] = new Space(2, 0, new Bishop(ChessPiece.COLOR.WHITE));
+        chessBoard[3][0] = new Space(3, 0, new Queen(ChessPiece.COLOR.WHITE));
+        chessBoard[4][0] = new Space(4, 0, new King(ChessPiece.COLOR.WHITE));
+        chessBoard[5][0] = new Space(5, 0, new Bishop(ChessPiece.COLOR.WHITE));
+        chessBoard[6][0] = new Space(6, 0, new Knight(ChessPiece.COLOR.WHITE));
+        chessBoard[7][0] = new Space(7, 0, new Castle(ChessPiece.COLOR.WHITE));
         for(int i = 0; i < 8; i++) {
-            chessBoard[i][1] = new Space(1, i, new Pawn(ChessPiece.COLOR.WHITE));
+            chessBoard[i][1] = new Space(i, 1, new Pawn(ChessPiece.COLOR.WHITE));
         }
-
-        chessBoard[0][7] = new Space(7, 0, new Castle(ChessPiece.COLOR.BlACK));
-        chessBoard[1][7] = new Space(7, 1, new Knight(ChessPiece.COLOR.BlACK));
-        chessBoard[2][7] = new Space(7, 2, new Bishop(ChessPiece.COLOR.BlACK));
-        chessBoard[3][7] = new Space(7, 3, new King(ChessPiece.COLOR.BlACK));
-        chessBoard[4][7] = new Space(7, 4, new Queen(ChessPiece.COLOR.BlACK));
-        chessBoard[5][7] = new Space(7, 5, new Bishop(ChessPiece.COLOR.BlACK));
-        chessBoard[6][7] = new Space(7, 6, new Knight(ChessPiece.COLOR.BlACK));
+        chessBoard[0][7] = new Space(0, 7, new Castle(ChessPiece.COLOR.BlACK));
+        chessBoard[1][7] = new Space(1, 7, new Knight(ChessPiece.COLOR.BlACK));
+        chessBoard[2][7] = new Space(2, 7, new Bishop(ChessPiece.COLOR.BlACK));
+        chessBoard[3][7] = new Space(3, 7, new Queen(ChessPiece.COLOR.BlACK));
+        chessBoard[4][7] = new Space(4, 7, new King(ChessPiece.COLOR.BlACK));
+        chessBoard[5][7] = new Space(5, 7, new Bishop(ChessPiece.COLOR.BlACK));
+        chessBoard[6][7] = new Space(6, 7, new Knight(ChessPiece.COLOR.BlACK));
         chessBoard[7][7] = new Space(7, 7, new Castle(ChessPiece.COLOR.BlACK));
         for(int i = 0; i < 8; i++) {
-            chessBoard[i][6] = new Space(6, i, new Pawn(ChessPiece.COLOR.BlACK));
+            chessBoard[i][6] = new Space(i, 6, new Pawn(ChessPiece.COLOR.BlACK));
         }
     }
 
@@ -47,13 +46,14 @@ public class Board {
         else {
             if(isCorrectTurn(from)) {
                 lookDiagonally();
-                if (from.getPiece().isValidMove(changeY, changeX)) {
+                if (from.getPiece().isValidMove(changeX, changeY)) {
                     if (isPathClear(from, to)) {
                         to.setPiece(from.getPiece());
                         from.setPiece(new EmptyPiece());
                         if(to.getPiece() instanceof Pawn) {
                             ((Pawn) to.getPiece()).setHasMoved();
                         }
+                        setSelect(from, false);
                         switchTurn();
                     }
                 }
@@ -67,13 +67,45 @@ public class Board {
         }
     }
 
+    public void setSelect(Space space, boolean change) {
+        if(isCorrectTurn(space)) {
+            space.setSelected(change);
+        }
+    }
+
+    public void setHighlight(Space space, boolean change) {
+        if(isCorrectTurn(space)) {
+            ChessPiece piece = space.getPiece();
+            int x = space.x;
+            int y = space.y;
+            int changeX;
+            int changeY;
+            for (int i = 0; i < 8; i++) {
+                for (int j = 0; j < 8; j++) {
+                    if (change) {
+                        changeX = i - x;
+                        changeY = j - y;
+                        if (piece.isValidMove(changeX, changeY) && isPathClear(space, chessBoard[i][j])) {
+                            chessBoard[i][j].setHighlighted(true);
+                        } else {
+                            chessBoard[i][j].setHighlighted(false);
+                        }
+                    } else {
+                        chessBoard[i][j].setHighlighted(false);
+                    }
+                }
+            }
+        }
+    }
+
     public boolean isPathClear(Space from, Space to) {
         // gets beginning position
-        int x = from.y;
-        int y = from.x;
+        int x = from.x;
+        int y = from.y;
 
         int changeX = to.x - from.x;
         int changeY = to.y - from.y;
+
         if(!(from.getPiece() instanceof Knight)) {
             // if not knight, iterates towards destination
             while (x != to.x || y != to.y) {

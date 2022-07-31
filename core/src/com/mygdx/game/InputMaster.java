@@ -25,6 +25,8 @@ public class InputMaster {
     }
 
     public void setBoardX(boolean old) {
+        chessBoard.setSelect(chessBoard.getSpace(oldBoardX, oldBoardY), false);
+        chessBoard.setHighlight(chessBoard.getSpace(oldBoardX, oldBoardY), false);
         for(int i = 0; i < 8; i++) {
             if(check(trueX, i * size, (i + 1) * size)) {
                 if(old) {
@@ -51,6 +53,10 @@ public class InputMaster {
                     break;
                 }
             }
+        }
+        if(chessBoard.getSpace(oldBoardX, oldBoardY).getPiece().getColor() != ChessPiece.COLOR.NEUTRAL) {
+            chessBoard.setSelect(chessBoard.getSpace(oldBoardX, oldBoardY), true);
+            chessBoard.setHighlight(chessBoard.getSpace(oldBoardX, oldBoardY), true);
         }
     }
 

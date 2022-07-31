@@ -1,6 +1,7 @@
 package com.mygdx.game;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -13,6 +14,7 @@ public class ChessDisplay {
 
     Texture blackSpace;
     Texture whiteSpace;
+    Texture selected;
 
     int height = 2400;
     int width = 2400;
@@ -36,6 +38,7 @@ public class ChessDisplay {
 
         blackSpace = new Texture(Gdx.files.internal("BlackSpace.png"));
         whiteSpace = new Texture(Gdx.files.internal("WhiteSpace.png"));
+        selected = new Texture(Gdx.files.internal("HighlightedSpace.png"));
     }
 
     public void redraw(SpriteBatch batch) {
@@ -49,11 +52,15 @@ public class ChessDisplay {
             for(int j = 0; j < 8; j++) {
                 int rowOdd = i % 2;
                 int columnOdd = j % 2;
-                if(rowOdd == columnOdd) {
-                    batch.draw(whiteSpace, i * size, j * size, size, size);
+                if(chessBoard.getSpace(i, j).getSelected() || chessBoard.getSpace(i, j).getHighlighted()) {
+                    batch.draw(selected, i * size, j * size, size, size);
                 }
                 else {
-                    batch.draw(blackSpace,  i * size, j * size, size, size);
+                    if (rowOdd == columnOdd) {
+                        batch.draw(whiteSpace, i * size, j * size, size, size);
+                    } else {
+                        batch.draw(blackSpace, i * size, j * size, size, size);
+                    }
                 }
             }
         }

@@ -9,7 +9,8 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 public class Space {
     int x;
     int y;
-    private boolean isEmpty;
+    private boolean selected = false;
+    private boolean highlighted = false;
 
 
     private ChessPiece piece;
@@ -29,9 +30,6 @@ public class Space {
         this.piece = piece;
     }
 
-    public boolean getEmpty() {
-        return isEmpty;
-    }
 
     public void draw(SpriteBatch spriteBatch, int pos, int width, int height, Texture img) {
         spriteBatch.begin();
@@ -39,4 +37,19 @@ public class Space {
         spriteBatch.end();
     }
 
+    public boolean getSelected() {
+        return selected;
+    }
+
+    public void setSelected(boolean change) {
+        selected = change;
+    }
+
+    public boolean getHighlighted() {
+        return highlighted;
+    }
+
+    public void setHighlighted(boolean change) {
+        highlighted = change;
+    }
 }
