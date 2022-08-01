@@ -53,6 +53,7 @@ public class Board {
                         if(to.getPiece() instanceof Pawn) {
                             ((Pawn) to.getPiece()).setHasMoved();
                         }
+                        resetHighlight();
                         setSelect(from, false);
                         switchTurn();
                     }
@@ -98,6 +99,14 @@ public class Board {
         }
     }
 
+    public void resetHighlight() {
+        for(int i = 0; i < 8; i++) {
+            for(int j = 0; j < 8; j++) {
+                chessBoard[i][j].setHighlighted(false);
+            }
+        }
+    }
+
     public boolean isPathClear(Space from, Space to) {
         // gets beginning position
         int x = from.x;
@@ -137,10 +146,14 @@ public class Board {
                 // if not at destination, checks for a piece that obstructs the move
                 else {
                     if (!(chessBoard[x][y].getPiece() instanceof EmptyPiece)) {
-                        printError("Move is obstructed.");
                         return false;
                     }
                 }
+            }
+        }
+        else  {
+            if(from.getPiece().getColor() == to.getPiece().getColor() && from != to) {
+                return false;
             }
         }
         return true;

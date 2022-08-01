@@ -15,6 +15,7 @@ public class ChessDisplay {
     Texture blackSpace;
     Texture whiteSpace;
     Texture selected;
+    Texture highlighted;
 
     int height = 2400;
     int width = 2400;
@@ -39,6 +40,7 @@ public class ChessDisplay {
         blackSpace = new Texture(Gdx.files.internal("BlackSpace.png"));
         whiteSpace = new Texture(Gdx.files.internal("WhiteSpace.png"));
         selected = new Texture(Gdx.files.internal("HighlightedSpace.png"));
+        highlighted = new Texture(Gdx.files.internal("HighlightedSpace_2.png"));
     }
 
     public void redraw(SpriteBatch batch) {
@@ -52,8 +54,11 @@ public class ChessDisplay {
             for(int j = 0; j < 8; j++) {
                 int rowOdd = i % 2;
                 int columnOdd = j % 2;
-                if(chessBoard.getSpace(i, j).getSelected() || chessBoard.getSpace(i, j).getHighlighted()) {
+                if(chessBoard.getSpace(i, j).getSelected()) {
                     batch.draw(selected, i * size, j * size, size, size);
+                }
+                else if(chessBoard.getSpace(i, j).getHighlighted()) {
+                    batch.draw(highlighted, i * size, j * size, size, size);
                 }
                 else {
                     if (rowOdd == columnOdd) {
@@ -73,11 +78,8 @@ public class ChessDisplay {
             for(int j = 0; j < 8; j++) {
                 Space space = chessBoard.getSpace(i , j);
                 if(pieceTextures.containsKey(space.getPiece().convertColor() + space.getPiece().getName())) {
-                    batch.draw(pieceTextures.get(space.getPiece().convertColor() + space.getPiece().getName()), i * size + (size * 4/15), j * size + (size / 10), 120, 225);
+                    batch.draw(pieceTextures.get(space.getPiece().convertColor() + space.getPiece().getName()), i * size + (size * 3/10), j * size + (size / 10), 120, 225);
                 }
-/*                else {
-                    batch.draw(pieceTextures.get("Debug"), i * size + (size * 4 / 15), j * size + (size / 10), 120, 225);
-                }*/
             }
         }
         batch.end();
