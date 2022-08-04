@@ -11,6 +11,14 @@ public class Pawn implements ChessPiece{
         this.color = color;
     }
 
+    public Pawn(COLOR color, boolean hasMoved, boolean canAttack, int attackRight, int attackLeft) {
+            this.color = color;
+            this.hasMoved = hasMoved;
+            this.canAttack = canAttack;
+            this.attackRight = attackRight;
+            this.attackLeft = attackLeft;
+    }
+
     @Override
     public boolean isValidMove(int changeX, int changeY) {
         int change = -1;

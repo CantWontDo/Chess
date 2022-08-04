@@ -8,6 +8,11 @@ public class King implements ChessPiece {
         this.color = color;
     }
 
+    public King(COLOR color, boolean inCheck) {
+        this.color = color;
+        this.inCheck = inCheck;
+    }
+
     @Override
     public boolean isValidMove(int changeX, int changeY) {
         return changeX >= -1 && changeX <= 1 &&

@@ -49,14 +49,36 @@ public class Board {
         for(int i = 0; i < 8; i++) {
             for(int j = 0; j < 8; j++) {
                 Space space = board[i][j];
-                this.chessBoard[i][j] = new Space(space.x, space.y, space.getPiece());
+                ChessPiece piece = space.getPiece();
+                if(piece instanceof Pawn) {
+                    this.chessBoard[i][j] = new Space(space.x, space.y, new Pawn(piece.getColor(), ((Pawn) piece).hasMoved, ((Pawn) piece).getCanAttack(),
+                    ((Pawn) piece).attackLeft, ((Pawn) piece).attackRight));
+                }
+                else if(piece instanceof Castle) {
+                    this.chessBoard[i][j] = new Space(space.x, space.y, new Castle(piece.getColor()));
+                }
+                else if(piece instanceof Knight) {
+                    this.chessBoard[i][j] = new Space(space.x, space.y, new Knight(piece.getColor()));
+                }
+                else if(piece instanceof Bishop) {
+                    this.chessBoard[i][j] = new Space(space.x, space.y, new Bishop(piece.getColor()));
+                }
+                else if(piece instanceof Queen) {
+                    this.chessBoard[i][j] = new Space(space.x, space.y, new Queen(piece.getColor()));
+                }
+                else if(piece instanceof King) {
+                    this.chessBoard[i][j] = new Space(space.x, space.y, new King(piece.getColor(), ((King) piece).inCheck));
+                }
+                else {
+                    this.chessBoard[i][j] = new Space(space.x, space.y, new EmptyPiece());
+                }
             }
         }
         Space blackKing = null;
         Space whiteKing = null;
         for(int i = 0; i < 8; i++) {
             for(int j = 0; j < 8; j++) {
-                if(chessBoard[i][j].getPiece() instanceof King && chessBoard[i][j].getPiece().getColor() == ChessPiece.COLOR.BlACK) {
+                if(this.chessBoard[i][j].getPiece() instanceof King && this.chessBoard[i][j].getPiece().getColor() == ChessPiece.COLOR.BlACK) {
                     blackKing = this.chessBoard[i][j];
                 }
                 else if(chessBoard[i][j].getPiece() instanceof King && chessBoard[i][j].getPiece().getColor() == ChessPiece.COLOR.WHITE) {
@@ -84,8 +106,7 @@ public class Board {
             if(isCorrectTurn(from)) {
                 if (from.getPiece().isValidMove(changeX, changeY)) {
                     if (isPathClear(from, to)) {
-                        if(kings.get(turn).getCheck()) {
-                            if(!simulateMove(from, to)) {
+                            if(!simulateMove(to, from)) {
                                 to.setPiece(from.getPiece());
                                 from.setPiece(new EmptyPiece());
                                 if (to.getPiece() instanceof Pawn) {
@@ -97,20 +118,8 @@ public class Board {
                                 switchTurn();
                             }
                             else {
-                                printError("Address check.");
+                                System.out.println("check");
                             }
-                        }
-                        else {
-                            to.setPiece(from.getPiece());
-                            from.setPiece(new EmptyPiece());
-                            if (to.getPiece() instanceof Pawn) {
-                                ((Pawn) to.getPiece()).setHasMoved();
-                            }
-                            tryCheck();
-                            resetHighlight();
-                            setSelect(from, false);
-                            switchTurn();
-                        }
                     }
                 }
                 else {
@@ -231,17 +240,14 @@ public class Board {
     }
 
     private boolean simulateMove(Space to, Space from) {
-        Board simulation = new Board(chessBoard, turn);
+        Board simulation = new Board(chessBoard, -turn);
         Space simulateTo = simulation.getSpace(to.x, to.y);
         Space simulateFrom = simulation.getSpace(from.x, from.y);
         simulateTo.setPiece(simulateFrom.getPiece());
         simulateFrom.setPiece(new EmptyPiece());
-        if (simulateTo.getPiece() instanceof Pawn) {
-            ((Pawn) simulateTo.getPiece()).setHasMoved();
-        }
-        simulation.switchTurn();
+        simulation.updateKings();
         simulation.tryCheck();
-        return simulation.kings.get(simulation.turn).getCheck();
+        return simulation.kings.get(-simulation.turn).getCheck();
     }
 
     private void switchTurn() {
@@ -338,5 +344,35 @@ public class Board {
                 }
             }
         }
+    }
+
+    private void printSimulation(Board board) {
+        for(int i = 0; i < 8; i++) {
+            for(int j = 0; j < 8; j++) {
+                if(board.getSpace(j, i).getPiece() instanceof Pawn) {
+                    System.out.print("P ");
+                }
+                else if(board.getSpace(j, i).getPiece() instanceof Castle) {
+                    System.out.print("C ");
+                }
+                else if(board.getSpace(j, i).getPiece() instanceof Knight) {
+                    System.out.print("K ");
+                }
+                else if(board.getSpace(j, i).getPiece() instanceof Bishop) {
+                    System.out.print("B ");
+                }
+                else if(board.getSpace(j, i).getPiece() instanceof Queen) {
+                    System.out.print("Q ");
+                }
+                else if(board.getSpace(j, i).getPiece() instanceof King) {
+                    System.out.print("k ");
+                }
+                else {
+                    System.out.print(". ");
+                }
+            }
+            System.out.println();
+        }
+        System.out.println("_______________________________________________________________");
     }
 }
