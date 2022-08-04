@@ -16,6 +16,7 @@ public class ChessDisplay {
     Texture whiteSpace;
     Texture selected;
     Texture highlighted;
+    Texture check;
 
     int height = 2400;
     int width = 2400;
@@ -41,6 +42,7 @@ public class ChessDisplay {
         whiteSpace = new Texture(Gdx.files.internal("WhiteSpace.png"));
         selected = new Texture(Gdx.files.internal("HighlightedSpace.png"));
         highlighted = new Texture(Gdx.files.internal("HighlightedSpace_2.png"));
+        check = new Texture(Gdx.files.internal("CheckSpace.png"));
     }
 
     public void redraw(SpriteBatch batch) {
@@ -54,6 +56,7 @@ public class ChessDisplay {
             for(int j = 0; j < 8; j++) {
                 int rowOdd = i % 2;
                 int columnOdd = j % 2;
+                ChessPiece potentialKing = chessBoard.getSpace(i, j).getPiece();
                 if(chessBoard.getSpace(i, j).getSelected()) {
                     batch.draw(selected, i * size, j * size, size, size);
                 }
@@ -65,6 +68,11 @@ public class ChessDisplay {
                         batch.draw(whiteSpace, i * size, j * size, size, size);
                     } else {
                         batch.draw(blackSpace, i * size, j * size, size, size);
+                    }
+                }
+                if(potentialKing instanceof King) {
+                    if(((King) potentialKing).getCheck()) {
+                        batch.draw(check, i * size, j * size, size, size);
                     }
                 }
             }

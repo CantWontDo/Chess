@@ -2,6 +2,7 @@ package com.mygdx.game;
 
 public class King implements ChessPiece {
     COLOR color = COLOR.BlACK;
+    boolean inCheck = false;
 
     public King(COLOR color) {
         this.color = color;
@@ -22,6 +23,14 @@ public class King implements ChessPiece {
             return "White";
         }
         return "Null";
+    }
+
+    public void setCheck(boolean check) {
+        inCheck = check;
+    }
+
+    public boolean getCheck() {
+        return inCheck;
     }
 
     @Override

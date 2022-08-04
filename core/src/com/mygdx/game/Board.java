@@ -1,8 +1,13 @@
 package com.mygdx.game;
 
+import java.util.HashMap;
+
 public class Board {
     Space[][] chessBoard = new Space[8][8];
     int turn = 1;
+
+    HashMap<Integer, Space> kingSpaces = new HashMap<>();
+    HashMap<Integer, King> kings = new HashMap<>();
 
     public Board() {
         for(int j = 0; j < 8; j++) {
@@ -32,6 +37,38 @@ public class Board {
         for(int i = 0; i < 8; i++) {
             chessBoard[i][6] = new Space(i, 6, new Pawn(ChessPiece.COLOR.BlACK));
         }
+
+        kingSpaces.put(-1, chessBoard[4][7]);
+        kingSpaces.put(1, chessBoard[4][0]);
+        kings.put(-1, (King) chessBoard[4][7].getPiece());
+        kings.put(1, (King) chessBoard[4][0].getPiece());
+    }
+
+    public Board(Space[][] board, int turn) {
+        this.turn = turn;
+        for(int i = 0; i < 8; i++) {
+            for(int j = 0; j < 8; j++) {
+                Space space = board[i][j];
+                this.chessBoard[i][j] = new Space(space.x, space.y, space.getPiece());
+            }
+        }
+        Space blackKing = null;
+        Space whiteKing = null;
+        for(int i = 0; i < 8; i++) {
+            for(int j = 0; j < 8; j++) {
+                if(chessBoard[i][j].getPiece() instanceof King && chessBoard[i][j].getPiece().getColor() == ChessPiece.COLOR.BlACK) {
+                    blackKing = this.chessBoard[i][j];
+                }
+                else if(chessBoard[i][j].getPiece() instanceof King && chessBoard[i][j].getPiece().getColor() == ChessPiece.COLOR.WHITE) {
+                    whiteKing = this.chessBoard[i][j];
+                }
+            }
+        }
+
+        this.kingSpaces.put(-1, blackKing);
+        this.kingSpaces.put(1, whiteKing);
+        this.kings.put(-1, (King) blackKing.getPiece());
+        this.kings.put(1, (King) whiteKing.getPiece());
     }
 
     public void makeMove(Space from, Space to) {
@@ -45,17 +82,35 @@ public class Board {
         }
         else {
             if(isCorrectTurn(from)) {
-                lookDiagonally();
                 if (from.getPiece().isValidMove(changeX, changeY)) {
                     if (isPathClear(from, to)) {
-                        to.setPiece(from.getPiece());
-                        from.setPiece(new EmptyPiece());
-                        if(to.getPiece() instanceof Pawn) {
-                            ((Pawn) to.getPiece()).setHasMoved();
+                        if(kings.get(turn).getCheck()) {
+                            if(!simulateMove(from, to)) {
+                                to.setPiece(from.getPiece());
+                                from.setPiece(new EmptyPiece());
+                                if (to.getPiece() instanceof Pawn) {
+                                    ((Pawn) to.getPiece()).setHasMoved();
+                                }
+                                tryCheck();
+                                resetHighlight();
+                                setSelect(from, false);
+                                switchTurn();
+                            }
+                            else {
+                                printError("Address check.");
+                            }
                         }
-                        resetHighlight();
-                        setSelect(from, false);
-                        switchTurn();
+                        else {
+                            to.setPiece(from.getPiece());
+                            from.setPiece(new EmptyPiece());
+                            if (to.getPiece() instanceof Pawn) {
+                                ((Pawn) to.getPiece()).setHasMoved();
+                            }
+                            tryCheck();
+                            resetHighlight();
+                            setSelect(from, false);
+                            switchTurn();
+                        }
                     }
                 }
                 else {
@@ -175,19 +230,79 @@ public class Board {
         System.out.println("______________________________________________________________");
     }
 
-    private void switchTurn() {
-        turn = -turn;
+    private boolean simulateMove(Space to, Space from) {
+        Board simulation = new Board(chessBoard, turn);
+        Space simulateTo = simulation.getSpace(to.x, to.y);
+        Space simulateFrom = simulation.getSpace(from.x, from.y);
+        simulateTo.setPiece(simulateFrom.getPiece());
+        simulateFrom.setPiece(new EmptyPiece());
+        if (simulateTo.getPiece() instanceof Pawn) {
+            ((Pawn) simulateTo.getPiece()).setHasMoved();
+        }
+        simulation.switchTurn();
+        simulation.tryCheck();
+        return simulation.kings.get(simulation.turn).getCheck();
     }
 
-    public Space[][] getChessBoard() {
-        return chessBoard;
+    private void switchTurn() {
+        turn = -turn;
+        updateKings();
     }
 
     public Space getSpace(int x, int y) {
         return chessBoard[x][y];
     }
 
-    private void lookDiagonally() {
+    public void tryCheck() {
+        boolean found = false;
+        ChessPiece.COLOR opposingColor = ChessPiece.COLOR.WHITE;
+        if(turn == 1) {
+            opposingColor = ChessPiece.COLOR.BlACK;
+        }
+
+        for(int i = 0; i < 8; i++) {
+            for(int j = 0; j < 8; j++) {
+                if(chessBoard[i][j].getPiece().getColor() != opposingColor) {
+                    Space space = chessBoard[i][j];
+                    int changeX = kingSpaces.get(-turn).x - space.x;
+                    int changeY = kingSpaces.get(-turn).y - space.y;
+
+                    if(space.getPiece().isValidMove(changeX, changeY) && isPathClear(space, kingSpaces.get(-turn))) {
+                        found = true;
+                    }
+                }
+            }
+        }
+        kings.get(-turn).setCheck(found);
+    }
+
+    private void updateKings() {
+        Space blackKing = null;
+        Space whiteKing = null;
+
+        for(int i = 0; i < 8; i++) {
+            for(int j = 0; j < 8; j++) {
+                if(chessBoard[i][j].getPiece() instanceof King && chessBoard[i][j].getPiece().getColor() == ChessPiece.COLOR.BlACK) {
+                    blackKing = chessBoard[i][j];
+                }
+                else if(chessBoard[i][j].getPiece() instanceof King && chessBoard[i][j].getPiece().getColor() == ChessPiece.COLOR.WHITE) {
+                    whiteKing = chessBoard[i][j];
+                }
+            }
+        }
+
+        kingSpaces.remove(-1);
+        kingSpaces.remove(-1);
+        kings.remove(-1);
+        kings.remove(1);
+        kings.put(-1, (King) blackKing.getPiece());
+        kings.put(1, (King) whiteKing.getPiece());
+
+        kingSpaces.put(-1, blackKing);
+        kingSpaces.put(1, whiteKing);
+    }
+
+    public void lookDiagonally() {
         for(int i = 0; i < 8; i++) {
             for(int j = 0; j < 8; j++) {
                 // finds pawn
@@ -203,13 +318,21 @@ public class Board {
                     if(j - value > -1 && j - value < 8 && j + value < 8 && j + value > -1 && i - value > -1 && i - value < 8 && i + value < 8 && i + value > -1) {
                         // if the space to the right upwards diagonal is the opposite color or the left upwards diagonal is the opposite color, the pawn can attack.
                         // second condition is weird
-                        if ((chessBoard[i + value][j + value].getPiece().getColor() != pawn.getColor() && chessBoard[i + value][j + value].getPiece().getColor() != ChessPiece.COLOR.NEUTRAL) ||
+                        if ((chessBoard[i + value][j + value].getPiece().getColor() != pawn.getColor() && chessBoard[i + value][j + value].getPiece().getColor() != ChessPiece.COLOR.NEUTRAL) &&
                                 chessBoard[i - value][j + value].getPiece().getColor() != pawn.getColor() && chessBoard[i - value][j + value].getPiece().getColor() != ChessPiece.COLOR.NEUTRAL) {
-                            pawn.setCanAttack(true);
+                            pawn.setCanAttack(true, value, -value);
+                        }
+                        else if(chessBoard[i + value][j + value].getPiece().getColor() != pawn.getColor() && chessBoard[i + value][j + value].getPiece().getColor() != ChessPiece.COLOR.NEUTRAL
+                        && !(chessBoard[i - value][j + value].getPiece().getColor() != pawn.getColor() && chessBoard[i - value][j + value].getPiece().getColor() != ChessPiece.COLOR.NEUTRAL)) {
+                            pawn.setCanAttack(true, value, 0);
+                        }
+                        else if(chessBoard[i - value][j + value].getPiece().getColor() != pawn.getColor() && chessBoard[i - value][j + value].getPiece().getColor() != ChessPiece.COLOR.NEUTRAL &&
+                        !(chessBoard[i + value][j + value].getPiece().getColor() != pawn.getColor() && chessBoard[i + value][j + value].getPiece().getColor() != ChessPiece.COLOR.NEUTRAL)) {
+                            pawn.setCanAttack(true, 0, -value);
                         }
                         // in other situations, it cannot
                         else {
-                            pawn.setCanAttack(false);
+                            pawn.setCanAttack(false, 0, 0);
                         }
                     }
                 }

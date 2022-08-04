@@ -4,6 +4,8 @@ public class Pawn implements ChessPiece{
     COLOR color = COLOR.BlACK;
     boolean hasMoved = false;
     boolean canAttack = false;
+    int attackRight;
+    int attackLeft;
 
     public Pawn(COLOR color) {
         this.color = color;
@@ -21,10 +23,10 @@ public class Pawn implements ChessPiece{
         }
         if(canAttack) {
             if(color == COLOR.WHITE) {
-                return (changeX == -1 || changeX == 1) && changeY == 1;
+                return ((changeX == attackLeft || changeX == attackRight) && changeY == 1) || (changeX == 0 && changeY == 1);
             }
             else if(color == COLOR.BlACK){
-                return (changeX == 1 || changeX == -1) && changeY == -1;
+                return ((changeX == -attackRight || changeX == attackLeft) && changeY == -1) || (changeX == 0 && changeY == -1);
             }
         }
         else {
@@ -32,7 +34,6 @@ public class Pawn implements ChessPiece{
                 return changeX == 0 && changeY <= value * change && changeY >= 0;
             }
             else if(color == COLOR.BlACK){
-                System.out.println(changeY);
                 return changeX == 0 && changeY >= value * change && changeY <= 0;
             }
         }
@@ -66,8 +67,10 @@ public class Pawn implements ChessPiece{
         }
     }
 
-    public void setCanAttack(boolean x) {
+    public void setCanAttack(boolean x, int right, int left) {
         canAttack = x;
+        attackRight = right;
+        attackLeft = left;
     }
 
     public boolean getCanAttack() {
