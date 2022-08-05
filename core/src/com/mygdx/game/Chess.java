@@ -54,14 +54,18 @@ public class Chess extends ApplicationAdapter {
 		batch.setProjectionMatrix(cam.combined);
 		chessDisplay.redraw(batch);
 		setInput();
-		if(Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT)) {
-			inputMaster.setBoardX(true);
-			inputMaster.setBoardY(true);
+		if(board.getCheckmate() == false) {
+			if (Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT)) {
+				inputMaster.setBoardX(true);
+				inputMaster.setBoardY(true);
+			} else if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
+				inputMaster.setBoardX(false);
+				inputMaster.setBoardY(false);
+				inputMaster.putInput();
+			}
 		}
-		else if(Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
-			inputMaster.setBoardX(false);
-			inputMaster.setBoardY(false);
-			inputMaster.putInput();
+		else {
+			chessDisplay.drawVictory(batch, board.getWinner());
 		}
 	}
 

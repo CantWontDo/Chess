@@ -18,6 +18,9 @@ public class ChessDisplay {
     Texture highlighted;
     Texture check;
 
+    Texture blackVictory;
+    Texture whiteVictory;
+
     int height = 2400;
     int width = 2400;
     int size = height / 8;
@@ -43,6 +46,9 @@ public class ChessDisplay {
         selected = new Texture(Gdx.files.internal("HighlightedSpace.png"));
         highlighted = new Texture(Gdx.files.internal("HighlightedSpace_2.png"));
         check = new Texture(Gdx.files.internal("CheckSpace.png"));
+
+        blackVictory = new Texture(Gdx.files.internal("BlackVictory.png"));
+        whiteVictory = new Texture(Gdx.files.internal("WhiteVictory.png"));
     }
 
     public void redraw(SpriteBatch batch) {
@@ -89,6 +95,17 @@ public class ChessDisplay {
                     batch.draw(pieceTextures.get(space.getPiece().convertColor() + space.getPiece().getName()), i * size + (size * 3/10), j * size + (size / 10), 120, 225);
                 }
             }
+        }
+        batch.end();
+    }
+
+    public void drawVictory(SpriteBatch batch, ChessPiece.COLOR color) {
+        batch.begin();
+        if(color == ChessPiece.COLOR.BlACK) {
+            batch.draw(blackVictory, 0, 0, size * 8, size * 8);
+        }
+        else if(color == ChessPiece.COLOR.WHITE) {
+            batch.draw(whiteVictory, 0, 0, size * 8, size * 8);
         }
         batch.end();
     }

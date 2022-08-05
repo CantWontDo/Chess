@@ -4,6 +4,9 @@ import java.util.HashMap;
 
 public class Board {
     Space[][] chessBoard = new Space[8][8];
+
+    boolean isCheckmate = false;
+    ChessPiece.COLOR winner = null;
     int turn = 1;
 
     HashMap<Integer, Space> kingSpaces = new HashMap<>();
@@ -38,10 +41,7 @@ public class Board {
             chessBoard[i][6] = new Space(i, 6, new Pawn(ChessPiece.COLOR.BlACK));
         }
 
-        kingSpaces.put(-1, chessBoard[4][7]);
-        kingSpaces.put(1, chessBoard[4][0]);
-        kings.put(-1, (King) chessBoard[4][7].getPiece());
-        kings.put(1, (King) chessBoard[4][0].getPiece());
+        updateKings();
     }
 
     public Board(Space[][] board, int turn) {
@@ -74,23 +74,7 @@ public class Board {
                 }
             }
         }
-        Space blackKing = null;
-        Space whiteKing = null;
-        for(int i = 0; i < 8; i++) {
-            for(int j = 0; j < 8; j++) {
-                if(this.chessBoard[i][j].getPiece() instanceof King && this.chessBoard[i][j].getPiece().getColor() == ChessPiece.COLOR.BlACK) {
-                    blackKing = this.chessBoard[i][j];
-                }
-                else if(chessBoard[i][j].getPiece() instanceof King && chessBoard[i][j].getPiece().getColor() == ChessPiece.COLOR.WHITE) {
-                    whiteKing = this.chessBoard[i][j];
-                }
-            }
-        }
-
-        this.kingSpaces.put(-1, blackKing);
-        this.kingSpaces.put(1, whiteKing);
-        this.kings.put(-1, (King) blackKing.getPiece());
-        this.kings.put(1, (King) whiteKing.getPiece());
+        updateKings();
     }
 
     public void makeMove(Space from, Space to) {
@@ -116,9 +100,9 @@ public class Board {
                                 resetHighlight();
                                 setSelect(from, false);
                                 switchTurn();
-                            }
-                            else {
-                                System.out.println("check");
+                                if(kings.get(turn).getCheck()) {
+                                    setCheckmate();
+                                }
                             }
                     }
                 }
@@ -241,10 +225,12 @@ public class Board {
 
     private boolean simulateMove(Space to, Space from) {
         Board simulation = new Board(chessBoard, -turn);
+        printSimulation(simulation);
         Space simulateTo = simulation.getSpace(to.x, to.y);
         Space simulateFrom = simulation.getSpace(from.x, from.y);
         simulateTo.setPiece(simulateFrom.getPiece());
         simulateFrom.setPiece(new EmptyPiece());
+        printSimulation(simulation);
         simulation.updateKings();
         simulation.tryCheck();
         return simulation.kings.get(-simulation.turn).getCheck();
@@ -283,29 +269,59 @@ public class Board {
     }
 
     private void updateKings() {
-        Space blackKing = null;
-        Space whiteKing = null;
+        kingSpaces.clear();
+        kings.clear();
 
         for(int i = 0; i < 8; i++) {
             for(int j = 0; j < 8; j++) {
-                if(chessBoard[i][j].getPiece() instanceof King && chessBoard[i][j].getPiece().getColor() == ChessPiece.COLOR.BlACK) {
-                    blackKing = chessBoard[i][j];
+                if(chessBoard[i][j].getPiece().getName() == "King" && chessBoard[i][j].getPiece().getColor() == ChessPiece.COLOR.BlACK) {
+                    kingSpaces.put(-1, chessBoard[i][j]);
+                    kings.put(-1, (King) chessBoard[i][j].getPiece());
                 }
-                else if(chessBoard[i][j].getPiece() instanceof King && chessBoard[i][j].getPiece().getColor() == ChessPiece.COLOR.WHITE) {
-                    whiteKing = chessBoard[i][j];
+                else if(chessBoard[i][j].getPiece().getName() == "King" && chessBoard[i][j].getPiece().getColor() == ChessPiece.COLOR.WHITE) {
+                    kingSpaces.put(1, chessBoard[i][j]);
+                    kings.put(1, (King) chessBoard[i][j].getPiece());
+                }
+            }
+        }
+    }
+
+    public void setCheckmate() {
+        ChessPiece.COLOR color = ChessPiece.COLOR.WHITE;
+        if(turn == 1) {
+            color = ChessPiece.COLOR.BlACK;
+        }
+
+        boolean checkmate = true;
+
+        for(int i = 0; i < 8; i++) {
+            for(int j = 0; j < 8; j++) {
+                if(chessBoard[i][j].getPiece().getColor() == color) {
+                    for(int k = 0; k < 8; k++) {
+                        for(int l = 0; l < 8; l++) {
+                            if(chessBoard[k][l].getPiece().getName() != "King") {
+                                if (!simulateMove(chessBoard[k][l], chessBoard[i][j])) {
+                                    checkmate = false;
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
 
-        kingSpaces.remove(-1);
-        kingSpaces.remove(-1);
-        kings.remove(-1);
-        kings.remove(1);
-        kings.put(-1, (King) blackKing.getPiece());
-        kings.put(1, (King) whiteKing.getPiece());
+        if(checkmate) {
+            winner = color;
+        }
+        isCheckmate = checkmate;
+    }
 
-        kingSpaces.put(-1, blackKing);
-        kingSpaces.put(1, whiteKing);
+    public ChessPiece.COLOR getWinner() {
+        return winner;
+    }
+
+    public boolean getCheckmate() {
+        return isCheckmate;
     }
 
     public void lookDiagonally() {
