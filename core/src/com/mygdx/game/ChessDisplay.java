@@ -25,6 +25,8 @@ public class ChessDisplay {
     int width = 2400;
     int size = height / 8;
 
+    int victoryTimer = 125;
+
     public ChessDisplay(Board board) {
         this.chessBoard = board;
         pieceTextures.put("BlackBishop", new Texture(Gdx.files.internal("BlackBishop.png")));
@@ -101,11 +103,13 @@ public class ChessDisplay {
 
     public void drawVictory(SpriteBatch batch, ChessPiece.COLOR color) {
         batch.begin();
-        if(color == ChessPiece.COLOR.BlACK) {
-            batch.draw(blackVictory, 0, 0, size * 8, size * 8);
+        if(color == ChessPiece.COLOR.BlACK && victoryTimer >= 0) {
+            victoryTimer--;
+            batch.draw(blackVictory, 600, 600, size * 4, size * 4);
         }
-        else if(color == ChessPiece.COLOR.WHITE) {
-            batch.draw(whiteVictory, 0, 0, size * 8, size * 8);
+        if(color == ChessPiece.COLOR.WHITE && victoryTimer >= 0) {
+            victoryTimer--;
+            batch.draw(whiteVictory, 600, 600, size * 4, size * 4);
         }
         batch.end();
     }

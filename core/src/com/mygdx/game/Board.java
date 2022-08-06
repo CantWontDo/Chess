@@ -225,12 +225,10 @@ public class Board {
 
     private boolean simulateMove(Space to, Space from) {
         Board simulation = new Board(chessBoard, -turn);
-        printSimulation(simulation);
         Space simulateTo = simulation.getSpace(to.x, to.y);
         Space simulateFrom = simulation.getSpace(from.x, from.y);
         simulateTo.setPiece(simulateFrom.getPiece());
         simulateFrom.setPiece(new EmptyPiece());
-        printSimulation(simulation);
         simulation.updateKings();
         simulation.tryCheck();
         return simulation.kings.get(-simulation.turn).getCheck();
@@ -274,11 +272,11 @@ public class Board {
 
         for(int i = 0; i < 8; i++) {
             for(int j = 0; j < 8; j++) {
-                if(chessBoard[i][j].getPiece().getName() == "King" && chessBoard[i][j].getPiece().getColor() == ChessPiece.COLOR.BlACK) {
+                if(chessBoard[i][j].getPiece().getName().equals("King") && chessBoard[i][j].getPiece().getColor() == ChessPiece.COLOR.BlACK) {
                     kingSpaces.put(-1, chessBoard[i][j]);
                     kings.put(-1, (King) chessBoard[i][j].getPiece());
                 }
-                else if(chessBoard[i][j].getPiece().getName() == "King" && chessBoard[i][j].getPiece().getColor() == ChessPiece.COLOR.WHITE) {
+                else if(chessBoard[i][j].getPiece().getName().equals("King") && chessBoard[i][j].getPiece().getColor() == ChessPiece.COLOR.WHITE) {
                     kingSpaces.put(1, chessBoard[i][j]);
                     kings.put(1, (King) chessBoard[i][j].getPiece());
                 }
@@ -287,21 +285,34 @@ public class Board {
     }
 
     public void setCheckmate() {
+        // gets opposing color to get correct victory screen
         ChessPiece.COLOR color = ChessPiece.COLOR.WHITE;
         if(turn == 1) {
             color = ChessPiece.COLOR.BlACK;
         }
 
+        // assumes that it is checkmate until proved otherwise
         boolean checkmate = true;
 
+        // iterates through board until finding a piece which is the correct color
         for(int i = 0; i < 8; i++) {
             for(int j = 0; j < 8; j++) {
-                if(chessBoard[i][j].getPiece().getColor() == color) {
+                if(chessBoard[i][j].getPiece().getColor() != color && chessBoard[i][j].getPiece().getColor() != ChessPiece.COLOR.NEUTRAL) {
+                    // iterates through the board once more, simulating valid moves
+                    // iterates through the board once more, simulating valid moves
+                    // if any move prevents a check, it is not a checkmate, so it sets checkmate to false
                     for(int k = 0; k < 8; k++) {
                         for(int l = 0; l < 8; l++) {
-                            if(chessBoard[k][l].getPiece().getName() != "King") {
-                                if (!simulateMove(chessBoard[k][l], chessBoard[i][j])) {
-                                    checkmate = false;
+                            if(!chessBoard[k][l].getPiece().getName().equals("King")) {
+                                int changeX = chessBoard[k][l].x - chessBoard[i][j].x;
+                                int changeY = chessBoard[k][l].y - chessBoard[i][j].y;
+                                if(chessBoard[i][j].getPiece().isValidMove(changeX, changeY) && isPathClear(chessBoard[i][j], chessBoard[k][l])) {
+                                    if (!simulateMove(chessBoard[k][l], chessBoard[i][j])) {
+                                        System.out.println("Name: " + chessBoard[i][j].getPiece().getName() + " Original Pos: " +
+                                                chessBoard[i][j].x + ", " + chessBoard[i][j].y + "New Pos: " +
+                                                chessBoard[k][l].x + ", " + chessBoard[k][l].y);
+                                        checkmate = false;
+                                    }
                                 }
                             }
                         }
@@ -310,9 +321,11 @@ public class Board {
             }
         }
 
+        // sets the winner for ChessDisplay to draw correctly
         if(checkmate) {
             winner = color;
         }
+        // sets instance variable to local variable
         isCheckmate = checkmate;
     }
 
